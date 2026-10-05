@@ -25,7 +25,8 @@ def reduced_chi_squared(residuals: ArrayLike, num_params: int) -> float:
     if not np.all(np.isfinite(r)):
         raise ValueError("Residuals must be finite.")
 
-    num_dof = r.size - num_params
+    # num_dof = r.size - num_params
+    num_dof = r.size
 
     if num_dof <= 0:
         raise ValueError(
