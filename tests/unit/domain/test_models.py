@@ -4,7 +4,10 @@ import pytest
 from curvefit_api.domain.models import MODELS, UnknownModelError, get_model
 
 EXAMPLE_PARAMS: dict[str, list[float]] = {
+    "linear": [1.0, 2.0],
     "exponential_decay": [2.0, 1.5, 0.3],
+    "gaussian": [1.0, 0.0, 1.0, 0.0],
+    "lorentzian": [1.0, 0.0, 1.0, 0.0],
 }
 
 
@@ -44,6 +47,16 @@ def test_analytic_jacobian_matches_finite_differences(name: str) -> None:
     np.testing.assert_allclose(analytical, finite_differences, rtol=1.0e-6, atol=1.0e-8)
 
 
+def test_linear_returns_expected_values() -> None:
+    model_name = "linear"
+    model = get_model(model_name)
+    x = np.array([0.0, 1.0])
+    params = np.array(EXAMPLE_PARAMS[model_name])
+
+    y = model.function(x, params)
+    np.testing.assert_allclose(y, np.array([params[1], params[0] + params[1]]))
+
+
 def test_exponential_decay_returns_expected_values() -> None:
     model_name = "exponential_decay"
     model = get_model(model_name)
@@ -52,6 +65,30 @@ def test_exponential_decay_returns_expected_values() -> None:
 
     y = model.function(x, params)
     np.testing.assert_allclose(y, np.array([params[0] + params[2], params[0] / np.e + params[2]]))
+
+
+def test_gaussian_returns_expected_values() -> None:
+    model_name = "gaussian"
+    model = get_model(model_name)
+    x = np.array([0.0, 1.0])
+    params = np.array(EXAMPLE_PARAMS[model_name])
+
+    y = model.function(x, params)
+    np.testing.assert_allclose(
+        y, np.array([params[0] + params[3], params[0] * np.exp(-1 / 2) + params[3]])
+    )
+
+
+def test_loretizan_returns_expected_values() -> None:
+    model_name = "lorentzian"
+    model = get_model(model_name)
+    x = np.array([0.0, 1.0])
+    params = np.array(EXAMPLE_PARAMS[model_name])
+
+    y = model.function(x, params)
+    np.testing.assert_allclose(
+        y, np.array([params[0] + params[3], params[0] * params[2] ** 2 / (1 + params[2] ** 2)])
+    )
 
 
 def test_get_model_raises_for_unknown_name() -> None:

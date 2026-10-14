@@ -31,9 +31,21 @@ class Model:
     upper_bounds: tuple[float, ...]
 
 
+def _linear(x: FloatArray, parameters: FloatArray) -> FloatArray:
+    slope, intercept = parameters
+    result: FloatArray = slope * x + intercept
+    return result
+
+
+def _linear_jacobian(x: FloatArray, parameters: FloatArray) -> FloatArray:
+    _, _ = parameters
+    result = np.column_stack([x, np.ones_like(x)])
+    return result
+
+
 def _exponential_decay(x: FloatArray, parameters: FloatArray) -> FloatArray:
-    amplitude, tau, offset = parameters
-    result: FloatArray = amplitude * np.exp(-x / tau) + offset
+    amplitude, tau, baseline = parameters
+    result: FloatArray = amplitude * np.exp(-x / tau) + baseline
     return result
 
 
@@ -41,6 +53,61 @@ def _exponential_decay_jacobian(x: FloatArray, parameters: FloatArray) -> FloatA
     amplitude, tau, _ = parameters
     decay = np.exp(-x / tau)
     return np.column_stack([decay, amplitude * x * decay / tau**2, np.ones_like(x)])
+
+
+def _gaussian(x: FloatArray, parameters: FloatArray) -> FloatArray:
+    amplitude, center, sigma_width, baseline = parameters
+    result: FloatArray = amplitude * np.exp(-((x - center) ** 2) / (2 * sigma_width**2)) + baseline
+    return result
+
+
+def _gaussian_jacobian(x: FloatArray, parameters: FloatArray) -> FloatArray:
+    amplitude, center, sigma_width, baseline = parameters
+    diff = x - center
+    exp_val = np.exp(-(diff**2) / (2 * sigma_width**2))
+    result = np.column_stack(
+        [
+            exp_val,
+            amplitude * diff * exp_val / sigma_width**2,
+            amplitude * diff**2 * exp_val / sigma_width**3,
+            np.ones_like(x),
+        ]
+    )
+    return result
+
+
+def _lorentzian(x: FloatArray, params: FloatArray) -> FloatArray:
+    height, center, hwhm, baseline = params
+    diff = x - center
+    result: FloatArray = height * hwhm**2 / (diff**2 + hwhm**2) + baseline
+    return result
+
+
+def _lorentzian_jacobian(x: FloatArray, params: FloatArray) -> FloatArray:
+    height, center, hwhm, _ = params
+    diff = x - center
+    denom = diff**2 + hwhm**2
+    shape = hwhm**2 / denom
+    result = np.column_stack(
+        [
+            shape,
+            2.0 * height * shape * diff / denom,
+            2 * height * hwhm * diff**2 / denom**2,
+            np.ones_like(x),
+        ]
+    )
+    return result
+
+
+LINEAR = Model(
+    name="linear",
+    description="slope * x + intercept",
+    param_names=("slope", "intercept"),
+    function=_linear,
+    jacobian=_linear_jacobian,
+    lower_bounds=(-np.inf, -np.inf),
+    upper_bounds=(np.inf, np.inf),
+)
 
 
 EXPONENTIAL_DECAY = Model(
@@ -53,7 +120,32 @@ EXPONENTIAL_DECAY = Model(
     upper_bounds=(np.inf, np.inf, np.inf),
 )
 
-MODELS: dict[str, Model] = {model.name: model for model in (EXPONENTIAL_DECAY,)}
+
+GAUSSIAN = Model(
+    name="gaussian",
+    description="amplitude * exp(-(x - mean)**2 / (2 * std**2)) + baseline",
+    param_names=("amplitude", "mean", "std", "baseline"),
+    function=_gaussian,
+    jacobian=_gaussian_jacobian,
+    lower_bounds=(-np.inf, -np.inf, 0, -np.inf),
+    upper_bounds=(np.inf, np.inf, np.inf, np.inf),
+)
+
+
+LORENTZIAN = Model(
+    name="lorentzian",
+    description="height * hwhm**2 / ((x - center)**2 + hwhm**2) + offset",
+    param_names=("height", "center", "hwhm", "offset"),
+    function=_lorentzian,
+    jacobian=_lorentzian_jacobian,
+    lower_bounds=(-np.inf, -np.inf, 0.0, -np.inf),
+    upper_bounds=(np.inf, np.inf, np.inf, np.inf),
+)
+
+
+MODELS: dict[str, Model] = {
+    model.name: model for model in (LINEAR, EXPONENTIAL_DECAY, GAUSSIAN, LORENTZIAN)
+}
 
 
 def get_model(name: str) -> Model:
