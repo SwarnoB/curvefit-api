@@ -56,20 +56,20 @@ def _exponential_decay_jacobian(x: FloatArray, parameters: FloatArray) -> FloatA
 
 
 def _gaussian(x: FloatArray, parameters: FloatArray) -> FloatArray:
-    amplitude, center, sigma_width, baseline = parameters
-    result: FloatArray = amplitude * np.exp(-((x - center) ** 2) / (2 * sigma_width**2)) + baseline
+    height, center, sigma_width, baseline = parameters
+    result: FloatArray = height * np.exp(-((x - center) ** 2) / (2 * sigma_width**2)) + baseline
     return result
 
 
 def _gaussian_jacobian(x: FloatArray, parameters: FloatArray) -> FloatArray:
-    amplitude, center, sigma_width, baseline = parameters
+    height, center, sigma_width, baseline = parameters
     diff = x - center
     exp_val = np.exp(-(diff**2) / (2 * sigma_width**2))
     result = np.column_stack(
         [
             exp_val,
-            amplitude * diff * exp_val / sigma_width**2,
-            amplitude * diff**2 * exp_val / sigma_width**3,
+            height * diff * exp_val / sigma_width**2,
+            height * diff**2 * exp_val / sigma_width**3,
             np.ones_like(x),
         ]
     )
