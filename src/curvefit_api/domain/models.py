@@ -24,7 +24,7 @@ class Model:
 
     name: str
     description: str
-    param_names: tuple[str, ...]
+    parameter_names: tuple[str, ...]
     function: ModelFunction
     jacobian: ModelFunction
     lower_bounds: tuple[float, ...]
@@ -102,7 +102,7 @@ def _lorentzian_jacobian(x: FloatArray, params: FloatArray) -> FloatArray:
 LINEAR = Model(
     name="linear",
     description="slope * x + intercept",
-    param_names=("slope", "intercept"),
+    parameter_names=("slope", "intercept"),
     function=_linear,
     jacobian=_linear_jacobian,
     lower_bounds=(-np.inf, -np.inf),
@@ -113,7 +113,7 @@ LINEAR = Model(
 EXPONENTIAL_DECAY = Model(
     name="exponential_decay",
     description="amplitude * exp(-x / tau) + offset",
-    param_names=("amplitude", "tau", "offset"),
+    parameter_names=("amplitude", "tau", "offset"),
     function=_exponential_decay,
     jacobian=_exponential_decay_jacobian,
     lower_bounds=(-np.inf, 0, -np.inf),
@@ -124,7 +124,7 @@ EXPONENTIAL_DECAY = Model(
 GAUSSIAN = Model(
     name="gaussian",
     description="amplitude * exp(-(x - mean)**2 / (2 * std**2)) + baseline",
-    param_names=("amplitude", "mean", "std", "baseline"),
+    parameter_names=("amplitude", "mean", "std", "baseline"),
     function=_gaussian,
     jacobian=_gaussian_jacobian,
     lower_bounds=(-np.inf, -np.inf, 0, -np.inf),
@@ -135,7 +135,7 @@ GAUSSIAN = Model(
 LORENTZIAN = Model(
     name="lorentzian",
     description="height * hwhm**2 / ((x - center)**2 + hwhm**2) + offset",
-    param_names=("height", "center", "hwhm", "offset"),
+    parameter_names=("height", "center", "hwhm", "offset"),
     function=_lorentzian,
     jacobian=_lorentzian_jacobian,
     lower_bounds=(-np.inf, -np.inf, 0.0, -np.inf),

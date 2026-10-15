@@ -18,7 +18,7 @@ def test_every_model_has_example_params() -> None:
 @pytest.mark.parametrize("name", sorted(MODELS))
 def test_every_model_has_consistent_definition(name: str) -> None:
     model = MODELS[name]
-    n = len(model.param_names)
+    n = len(model.parameter_names)
     assert len(model.lower_bounds) == n
     assert len(model.upper_bounds) == n
     assert len(EXAMPLE_PARAMS[name]) == n
