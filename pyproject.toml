@@ -8,8 +8,10 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "fastapi>=0.143.3",
     "numpy>=2.5.3",
     "scipy>=1.18.1",
+    "uvicorn[standard]>=0.54.0",
 ]
 
 [project.scripts]
@@ -21,6 +23,7 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "httpx2>=2.13.1",
     "mypy>=2.4.0",
     "pre-commit>=4.6.2",
     "pytest>=9.1.1",
@@ -36,3 +39,6 @@ select = ["E", "W", "F", "I", "B", "UP"]
 
 [tool.mypy]
 strict = true
+
+[tool.pytest.ini_options]
+filterwarnings = ["error"]
