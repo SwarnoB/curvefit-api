@@ -135,6 +135,7 @@ source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
     { name = "numpy" },
+    { name = "pydantic" },
     { name = "scipy" },
     { name = "uvicorn", extra = ["standard"] },
 ]
@@ -153,6 +154,7 @@ dev = [
 requires-dist = [
     { name = "fastapi", specifier = ">=0.143.3" },
     { name = "numpy", specifier = ">=2.5.3" },
+    { name = "pydantic", specifier = ">=2.14.1" },
     { name = "scipy", specifier = ">=1.18.1" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.54.0" },
 ]

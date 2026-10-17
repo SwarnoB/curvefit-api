@@ -10,6 +10,7 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.143.3",
     "numpy>=2.5.3",
+    "pydantic>=2.14.1",
     "scipy>=1.18.1",
     "uvicorn[standard]>=0.54.0",
 ]
@@ -39,6 +40,7 @@ select = ["E", "W", "F", "I", "B", "UP"]
 
 [tool.mypy]
 strict = true
+plugins = ["pydantic.mypy"]
 
 [tool.pytest.ini_options]
 filterwarnings = ["error"]
